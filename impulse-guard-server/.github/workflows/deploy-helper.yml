@@ -1,0 +1,60 @@
+name: Build and deploy to DigitalOcean
+
+on:
+  workflow_call:
+    inputs:
+      target_env:
+        required: true
+        type: string
+
+jobs:
+  build-deploy:
+    environment: ${{ inputs.target_env }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Validating environment
+        run: |
+          if [[ -z "${{ vars.ENV_TYPE }}" ]]; then
+            echo "ENV_TYPE is not set up"
+            exit 1
+          fi
+          if [[ -z "${{ secrets.MONGO_URL }}" ]]; then
+            echo "MONGO_URL is not set up"
+            exit 1
+          fi
+      - name: Set up .env file
+        run: |
+          echo "MONGO_URL=${{ secrets.MONGO_URL }}" >> .env.${{ vars.ENV_TYPE }}.local
+          echo "EXPO_TOKEN=${{ secrets.EXPO_TOKEN }}" >> .env.${{ vars.ENV_TYPE }}.local
+          echo "CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}" >> .env.${{ vars.ENV_TYPE }}.local
+          echo "CLERK_PUBLISHABLE_KEY=${{ secrets.CLERK_PUBLISHABLE_KEY }}" >> .env.${{ vars.ENV_TYPE }}.local
+          echo "CLERK_WEBHOOK_SECRET=${{ secrets.CLERK_WEBHOOK_SECRET }}" >> .env.${{ vars.ENV_TYPE }}.local
+          echo "CLERK_WEBHOOK_SIGNING_SECRET=${{ secrets.CLERK_WEBHOOK_SIGNING_SECRET }}" >> .env.${{ vars.ENV_TYPE }}.local
+          echo "REVENUECAT_WEBHOOK_SECRET=${{ secrets.REVENUECAT_WEBHOOK_SECRET }}" >> .env.${{ vars.ENV_TYPE }}.local
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            valeriishymchuk/impulse-guard:backend-${{ vars.ENV_TYPE }}-latest
+            valeriishymchuk/impulse-guard:backend-${{ vars.ENV_TYPE }}-${{ github.sha }}
+      - name: Transfer files to digital ocean
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: root
+          password: ${{ secrets.DROPLET_PASSWORD }}
+          script: |
+            cd /home/impulse-guard/backend/
+            export PORT=${{ vars.PORT }}
+            export ENV_TYPE=${{ vars.ENV_TYPE }}
+            export NODE_ENV=${{ vars.ENV_TYPE }}
+            ./deploy.sh

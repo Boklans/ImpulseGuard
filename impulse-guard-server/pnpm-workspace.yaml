@@ -1,0 +1,4 @@
+allowBuilds:
+  '@clerk/shared': false
+  '@nestjs/core': false
+  bcrypt: false

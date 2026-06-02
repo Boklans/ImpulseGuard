@@ -1,0 +1,37 @@
+# Native build folders (EAS generates these)
+ios/
+android/
+
+# Build outputs
+dist/
+web-build/
+
+# Dependencies (EAS installs these)
+node_modules/
+
+# Expo cache
+.expo/
+
+# IDE
+.idea/
+.vscode/
+
+# Environment
+.env
+.env.*
+
+# Certificates
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# macOS
+.DS_Store
+
+# Debug
+npm-debug.*
+*.orig.*
+
+# Git
+.git/

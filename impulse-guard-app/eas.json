@@ -1,0 +1,57 @@
+{
+  "cli": {
+    "version": ">=3.14.0",
+    "promptToConfigurePushNotifications": false
+  },
+  "build": {
+    "production": {
+      "environment": "production",
+      "env": {
+        "EXPO_NO_CAPABILITY_SYNC": "1"
+      },
+      "ios": {
+        "distribution": "store",
+        "autoIncrement": "buildNumber"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      }
+    },
+    "staging": {
+      "environment": "development",
+      "ios": {
+        "distribution": "internal"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "development": {
+      "environment": "development",
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "buildConfiguration": "Debug"
+      }
+    },
+    "production-test": {
+      "environment": "production",
+      "ios": {
+        "distribution": "internal",
+        "simulator": false
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "rudenko.albert.n@gmail.com",
+        "ascAppId": "6746700335",
+        "appleTeamId": "65JAZT2Q3V"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+name: Build and deploy
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-helper.yml
+    with:
+        target_env: PRODUCTION
+    secrets: inherit
+      
